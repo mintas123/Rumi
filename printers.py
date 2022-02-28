@@ -15,6 +15,7 @@ def print_game_status(deck, player_list, table):
     print('TABLE')
     print(table)
 
+
 # format terminal output for more clear visibility
 def print_pretty_comb_list(table: List[Combination]):
     print('Currently on the table:')
@@ -23,6 +24,7 @@ def print_pretty_comb_list(table: List[Combination]):
         _print_pretty_list(combination.tile_list, with_id=False)
         print()
     print('_________________')
+
 
 # format own tiles for a player to choose from
 def print_pretty_own(tile_list):
@@ -102,8 +104,12 @@ def pad_nums(tile: Tile, tile_str: str):
 
 def print_commands():
     print('\nCommands:')
-    print('[Q:] Done with moves. Next player                           [T:] Take from the deck. Next player ')
-    print('[S: ID ID] Split combination AFTER tile ID                  [T: ID R ID] Remove tile from combination')
+    print('[Q:] Done with moves. Next player')
+    print('[T:] Take from the deck. Next player')
+    print('[quit] Turn off the game.')
+    print('[clear] Clear the user input')
+    print('[S: ID ID] Split combination AFTER tile ID')
+    print('[T: ID R ID] Remove tile from combination')
     print('[C: ID ID..] Create combination from tiles in given order')
     print('[E: ID ID.. | ID ID ..] Enter with combinations from tiles in given order')
     print('[T: ID A ID h/t] Add tile to combination (head/tail)')
