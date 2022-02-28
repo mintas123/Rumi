@@ -3,8 +3,7 @@ from rumi_api import *
 import colorama
 
 
-
-#simple data without pretty formatting
+# simple data without pretty formatting
 def print_game_status(deck, player_list, table):
     print('DECK\n')
     print(len(deck))
@@ -16,16 +15,16 @@ def print_game_status(deck, player_list, table):
     print('TABLE')
     print(table)
 
-#format terminal output for more clear visibility
-def print_pretty_table(table: List[Combination]):
+# format terminal output for more clear visibility
+def print_pretty_comb_list(table: List[Combination]):
     print('Currently on the table:')
     for combination in table:
         print(f'ID: {combination.comb_id}')
-        _print_pretty_list(combination.tile_list,with_id=False)
+        _print_pretty_list(combination.tile_list, with_id=False)
         print()
     print('_________________')
 
-#format own tiles for a player to choose from
+# format own tiles for a player to choose from
 def print_pretty_own(tile_list):
     print('Your deck:')
     if len(tile_list) > 15:
@@ -35,7 +34,7 @@ def print_pretty_own(tile_list):
         _print_pretty_list(tile_list)
 
 
-def _print_pretty_list(tile_list,with_id=True):
+def _print_pretty_list(tile_list, with_id=True):
     bld_str = 'Val:'
     id_bld_str = 'ID: '
     for tile in tile_list:
@@ -73,7 +72,7 @@ def _build_color_str(tile):
     return tile_str
 
 
-#if len(id) != len(val), append with space
+# if len(id) != len(val), append with space
 # | 4 |  --> |  4  |, | 1 | ---> |  1  |
 # | 12 | --> | 12  |, | 103 | -> | 103 |
 def pad_nums(tile: Tile, tile_str: str):
@@ -109,5 +108,3 @@ def print_commands():
     print('[E: ID ID.. | ID ID ..] Enter with combinations from tiles in given order')
     print('[T: ID A ID h/t] Add tile to combination (head/tail)')
     print()
-
-

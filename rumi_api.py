@@ -85,7 +85,7 @@ class Combination():
 class Player():
     def __init__(self, name):
         self.name = name
-        #TODO change to dictionary!!!
+        # TODO change to dictionary!!!
         self.tiles = []
         self.is_out = False
         self.turn_over = False
@@ -114,7 +114,6 @@ class Player():
     def return_to_own_list(self, tile: Tile):
         self.tiles.append(tile)
 
-
     def place_new_combination(self, tiles):
         pass
 
@@ -129,7 +128,7 @@ class Player():
     def toggle_chaos_mode(self, *dgsgds):
         pass
 
-    #reaarange tiles
+    # reaarange tiles
     def shake(self):
         pass
 
@@ -154,7 +153,7 @@ class Player():
 
 
 def get_combo_mode(tile_list):
-    #if I dont create copy here Python fucks with my (Combination) self.tile_list and modifies it
+    # if I dont create copy here Python fucks with my (Combination) self.tile_list and modifies it
     local_tile_list = []
     local_tile_list.extend(tile_list)
     try:
