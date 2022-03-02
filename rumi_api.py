@@ -1,7 +1,6 @@
 from enum import Enum
 import random
-from traceback import print_tb
-
+from typing import List
 
 class Color(Enum):
     RED = 1
@@ -11,9 +10,20 @@ class Color(Enum):
 
 
 class Tile():
+    """
+    Base of the Rummikub game. 
+    Tile has number in color, which allow forming combinations and winning the game.
+    Input:
+    number - number of the tile. In range 1-13
+    color - color of the tile, one of Enum Color values
+    is_fake - boolean, default False. If True, its a temporary facade for a Joker tile
+
+    Adidional parameters:
+    id - identifier of the tile, used for table and combination manipulations
+    """
     _static_id_counter = 0
 
-    def __init__(self, number, color, is_fake=False):
+    def __init__(self, number: int, color: Color, is_fake=False):
         if(number > 13) or (number < 1):
             raise ValueError("Only 1-13 numbers ")
 
@@ -36,6 +46,7 @@ class Joker():
         if Joker._static_id_counter > 106:
             raise ValueError('Only two Jokers')
         self.tile_id = Joker._static_id_counter
+        #TODO handle Jokers
         self.fake_tile = tile
         self.number = 'X'  # just for display
         if self.tile_id == 105:
@@ -90,11 +101,16 @@ class Player():
         self.is_out = False
         self.turn_over = False
 
+
     def __str__(self):
         return f'Player(\nName:{self.name}\nTiles:(\n' + "\n".join([str(x) for x in self.tiles]) + '\n)'
 
-    # take first 14 tiles
+
     def take_starters(self, deck):
+        '''
+        At the beggining of the game, each player takes 14 tiles from the deck.
+        '''
+
         if len(self.tiles) > 0:
             raise ValueError('Cant take initial pieces when pieces in hand')
         for _ in range(0, 14):
@@ -102,6 +118,9 @@ class Player():
 
     # take from the bag random piece when you have nothing to add
     def take_random(self, deck):
+        '''
+        Each round player can surrender and take a piece, if he has no possible actions.
+        '''
         if len(deck) > 0:
             self.tiles.append(deck.pop(random.randint(0, len(deck)-1)))
 
@@ -135,7 +154,7 @@ class Player():
     def mark_turn_over(self):
         pass
 
-    def enter_game(self, combination_list):
+    def enter_game(self, combination_list: List[Combination]):
         if (self.is_out):
             print('Already in the game - no need to enter.')
             return

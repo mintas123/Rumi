@@ -1,14 +1,31 @@
-from math import comb
 from printers import *
 from rumi_api import *
 import os
 import sys
-from itertools import cycle
 import colorama
 
+
+def main():
+    is_game_played = True
+    # game loop (todo add kill to the loop when game won)
+    while(is_game_played):
+        # global variables that provide data needed for all operations
+        global table
+        global deck
+        global player_list
+
+        deck = init_deck()
+        table = []
+
+        # gather game start information
+        player_count = player_count_loop()
+        player_list = get_player_list(player_count)
+
+        # game logic start point
+        players_iterate_loop(player_list)
+
+
 # get data how many players will be playing
-
-
 def player_count_loop():
     while True:
         player_count_input = input('How many players? 1-6 values only\n')
@@ -24,7 +41,11 @@ def player_count_loop():
             return player_count
 
 
-def get_player_list(player_count):
+def get_player_list(player_count: int):
+    '''
+    Create a player object with name from input, initialize the player's hand with starter from deck.
+    '''
+
     player_list = []
     for player_num in range(0, player_count):
         name = input(f'Player {player_num+1}, enter your name.\n')
@@ -34,7 +55,11 @@ def get_player_list(player_count):
     return player_list
 
 
-def players_iterate_loop(deck, player_list):
+def players_iterate_loop(player_list: List[Player]):
+    '''
+    Cyclic iteration of player list. Next player only when player.turn_over is True.
+    '''
+
     idx = 0
     while True:
 
@@ -42,45 +67,31 @@ def players_iterate_loop(deck, player_list):
             idx = 0
 
         current_player = player_list[idx]
-        _prepare_next_player_terminal(current_player)
+        _prepare_game_terminal(current_player)
         current_player.turn_over = False
         while not current_player.turn_over:
-            player_command_loop(deck, current_player)
+            player_command_loop(current_player)
 
         idx += 1
 
 
-def _clean_terminal():
-    os.system('cls' if os.name == 'nt' else 'clear')
+def player_command_loop(player: Player):
+    '''
+    Get user's input and handle it until the moves don't end the turn
+    by marking the player.turn_over falg as True.
+    '''
 
-def _print_default_view(current_player:Player):
-    global table
-    print_pretty_comb_list(table)
-    print_pretty_own(current_player.tiles)
-
-
-def _prepare_next_player_terminal(current_player: Player):
-    _clean_terminal()
-    print(f'{current_player.name}, it\'s your turn!\n')
-    # for colorful output
-    colorama.init()
-    _print_default_view(current_player)
-
-
-def player_command_loop(deck, player):
-    global table
-    turn_not_over = True
-    while turn_not_over:
+    while not player.turn_over:
         cmd, input_vars = _get_cmd_input()
-        # parse game commands, return bool about if the cmd_loop shoud be killed
-        turn_not_over = _handle_game_commands(
-            cmd, player, turn_not_over, input_vars)
+        _handle_game_commands(cmd, player, input_vars)
         # if no game ending command was given, check util commands
-        if turn_not_over:
-            turn_not_over = _handle_misc_commands(cmd, player, turn_not_over)
+        if not player.turn_over:
+            _handle_misc_commands(cmd, player)
 
 
 def _get_cmd_input():
+    '''Get Input from the player.'''
+
     inp = input(
         "What will you do? (write command + [Enter] to confirm). 'H' for help.\n").split(':')
 
@@ -91,31 +102,114 @@ def _get_cmd_input():
         input_vars.append(inp.strip())
     return cmd, input_vars
 
+# _______________COMMAND HANDLER_______________
 
-def enter_table(user_input, player: Player):
-    global table
-    combination_id_list = user_input.split('|')
+
+def _handle_game_commands(cmd: str, player: Player, input_vars):
+    '''
+    Process user command. Check for commands that touch on game logic aspects.
+    '''
+
+    if cmd == 'T':
+        # take random and finish command loop √
+        # TODO verify that no action was performed this loop.
+        player.take_random(deck)
+        player.turn_over = True
+
+    if cmd == 'E' and len(input_vars) == 1:
+        # Enter the game with combos that have 30+ in value, finish command loop √
+        enter_table(input_vars[0], player)
+
+    if cmd == 'C' and len(input_vars) == 1:
+        # create a new combination, without ending your turn
+        create_combination(input_vars[0], player)
+
+    if cmd == 'T' and len(input_vars) == 2:
+        # TODO NEXT add/remove tile to existing (A: | R:)
+        pass
+
+
+def _handle_misc_commands(cmd: str, player: Player):
+    '''
+    Process user command. Check for commands that touch on non game-logic related aspects.
+    '''
+
+    if cmd == 'Q':
+        # finish command loop. Outer loop changes player to the next one
+        player.turn_over = True
+
+    if cmd == 'H':
+        print_commands()
+
+    if cmd == 'QUIT':
+        sys.exit('Quitted..')
+
+    if cmd == 'CLEAR':
+        _clean_terminal()
+        _print_default_view(player)
+
+
+# _______________COMMAND ACTIONS_______________
+
+def enter_table(user_input: str, player: Player):
+    '''
+    Parse given data and try to add it to the table.
+
+    Example input:
+    '23 25 27 | 1 76 142'
+     parse to:
+    [['23','25','27'],['1','76','142']]
+
+    Result:
+    Print message and/or append the table by taking the tiles from the player.tile_list
+     '''
+
+    combination_input_list = user_input.split('|')
     combination_list = []
 
-    for combo_str in combination_id_list:
-        combo_str = combo_str.strip()
-        combination_list.append(_parse_combo_string(combo_str.strip(), player))
+    for input_tile_list in combination_input_list:
+        input_tile_list = input_tile_list.strip()
+        combination_list.append(_parse_combo_string(
+            input_tile_list.strip(), player))
 
-    for combo in combination_list:
-        player.enter_game(combination_list)
+    player.enter_game(combination_list)
 
     if player.is_out:
         for combo in combination_list:
             table.append(combo)
+            player.turn_over = True
+    else:
+        print('Nope, did not work out.')
 
 
 def create_combination(user_input, player: Player):
-    global table
+    '''
+    Parse and add given combination to the table, by taking the tiles from player.tile_list
+    '''
+
     if player.is_out:
         table.append(_parse_combo_string(user_input, player))
-        _clean_terminal()
-        _print_default_view(player)
+        _prepare_game_terminal(player)
         print('Added!')
+
+
+# _______________UTILS_______________
+
+def _prepare_game_terminal(current_player: Player):
+    _clean_terminal()
+    print(f'{current_player.name}, it\'s your turn!\n')
+    # for colorful output
+    colorama.init()
+    _print_default_view(current_player)
+
+
+def _clean_terminal():
+    os.system('cls' if os.name == 'nt' else 'clear')
+
+
+def _print_default_view(current_player: Player):
+    print_pretty_comb_list(table)
+    print_pretty_own(current_player.tiles)
 
 
 def _parse_combo_string(combo_string: str, player: Player) -> Combination:
@@ -137,55 +231,5 @@ def _create_combo(player: Player, tile_list: List[Tile]):
         print(str(ve))
 
 
-def _handle_game_commands(cmd, player, turn_not_over, input_vars):
-    if cmd == 'T':
-        # take random and finish command loop √
-        player.take_random(deck)
-        player.turn_over = True
-        turn_not_over = False
-    if cmd == 'E' and len(input_vars) == 1:
-        # Enter the game with combos that have 30+ in value, finish command loop √
-        enter_table(input_vars[0], player)
-        player.turn_over = True
-        turn_not_over = False
-    if cmd == 'C' and len(input_vars) == 1:
-        # create a new combination, without ending your turn
-        create_combination(input_vars[0], player)
-    # TODO NEXT add/remove tile to existing (A: | R:)
-    if cmd == 'T' and len(input_vars) == 2:
-        pass
-
-    return turn_not_over
-
-
-def _handle_misc_commands(cmd, player, turn_not_over):
-    if cmd == 'Q':
-        # finish command loop. Outer loop changes player to the next one
-        player.turn_over = True
-        turn_not_over = False
-    if cmd == 'H':
-        print_commands()
-    if cmd == 'QUIT':
-        sys.exit('Quitted..')
-    if cmd == 'CLEAR':
-        _clean_terminal()
-        _print_default_view(player)
-
-    return turn_not_over
-
-
-is_game_played = True
-# game loop (todo add kill to the loop when game won)
-while(is_game_played):
-    # global deck state is not messing up for now I think
-    global table
-
-    deck = init_deck()
-    table = []
-
-    # gather game start information
-    player_count = player_count_loop()
-    player_list = get_player_list(player_count)
-
-    # starting point
-    players_iterate_loop(deck, player_list)
+if __name__ == "__main__":
+    main()

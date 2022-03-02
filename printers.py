@@ -2,6 +2,10 @@ from typing import List
 from rumi_api import *
 import colorama
 
+"""
+Collection of helper methods that format data
+ for better visibility in the terminal
+"""
 
 # simple data without pretty formatting
 def print_game_status(deck, player_list, table):
@@ -16,8 +20,11 @@ def print_game_status(deck, player_list, table):
     print(table)
 
 
-# format terminal output for more clear visibility
 def print_pretty_comb_list(table: List[Combination]):
+    '''
+    Print to the CLI all provided combinations, each in its own row with ID
+    '''
+    
     print('Currently on the table:')
     for combination in table:
         print(f'ID: {combination.comb_id}')
@@ -26,8 +33,11 @@ def print_pretty_comb_list(table: List[Combination]):
     print('_________________')
 
 
-# format own tiles for a player to choose from
-def print_pretty_own(tile_list):
+def print_pretty_own(tile_list: List[Tile]):
+    '''
+    Print to the CLI all provided tiles, split into two rows if over 15 elements
+    '''
+
     print('Your deck:')
     if len(tile_list) > 15:
         _print_pretty_list(tile_list[:15])
@@ -36,7 +46,15 @@ def print_pretty_own(tile_list):
         _print_pretty_list(tile_list)
 
 
-def _print_pretty_list(tile_list, with_id=True):
+def _print_pretty_list(tile_list: List[Tile], with_id=True):
+    '''
+    Print to the CLI full row of tiles with applied formatting
+
+    Input: 
+    tile_list - List[Tile], obejcts to be properly displayed
+    with_id - boolean, should the row with ID numbers be displayed
+    '''
+
     bld_str = 'Val:'
     id_bld_str = 'ID: '
     for tile in tile_list:
@@ -50,6 +68,23 @@ def _print_pretty_list(tile_list, with_id=True):
 
 
 def _build_pretty_with_id(tile: Tile):
+    """
+    Return Tile information with the visual help,
+    to be better displayed in the CLI. 
+
+    Input:
+    tile - Tile object
+
+    Output:
+    full_str - properly formatted string with information about tile color and number
+    id_str - properly formatted string with tile ID number
+
+    Example:
+    Tile(id=34,num=12)
+    full_str: |12| (with colorama.Style applied)
+    id_str:  |34| 
+    """
+
     full_str = colorama.Style.RESET_ALL + " | "
     id_str = " | "
     tile_str = ''
@@ -63,6 +98,11 @@ def _build_pretty_with_id(tile: Tile):
 
 
 def _build_color_str(tile):
+    """
+    Return string with initialized styled formatting of the CLI
+    that fits the tile color
+    """
+
     if tile.color == Color.RED:
         tile_str = colorama.Fore.RED
     if tile.color == Color.BLACK:
@@ -74,10 +114,26 @@ def _build_color_str(tile):
     return tile_str
 
 
-# if len(id) != len(val), append with space
-# | 4 |  --> |  4  |, | 1 | ---> |  1  |
-# | 12 | --> | 12  |, | 103 | -> | 103 |
 def pad_nums(tile: Tile, tile_str: str):
+    """
+    Method that appends given string with properly formatted data from tile.
+    Because of displaying both number and id, padding is applied to make
+    the displayed in the CLI
+
+    Input:
+    tile - object with data to be properly displayed 
+    tile_str - string to append the data with
+
+    Output:
+    tile_str - string with number
+    id_str - string with id
+
+    Example:
+         Tile(id=12,num=4)  ;  Tile(id=103,num=1)
+    NUM: | 4 |  --> |  4  | ; | 1 | ---> |  1  |
+    ID:  | 12 | --> | 12  | ; | 103 | -> | 103 |
+    """
+
     id_str = ''
     val_len = len(str(tile.number))
     id_len = len(str(tile.tile_id))
