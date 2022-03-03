@@ -8,6 +8,8 @@ Collection of helper methods that format data
 """
 
 # simple data without pretty formatting
+
+
 def print_game_status(deck, player_list, table):
     print('DECK\n')
     print(len(deck))
@@ -24,7 +26,7 @@ def print_pretty_comb_list(table: List[Combination]):
     '''
     Print to the CLI all provided combinations, each in its own row with ID
     '''
-    
+
     print('Currently on the table:')
     for combination in table:
         print(f'ID: {combination.comb_id}')
@@ -161,12 +163,12 @@ def pad_nums(tile: Tile, tile_str: str):
 def print_commands():
     print('\nCommands:')
     print('[Q:] Done with moves. Next player')
-    print('[T:] Take from the deck. Next player')
+    print('[G:] Grab from the deck. Next player')
     print('[quit] Turn off the game.')
     print('[clear] Clear the user input')
     print('[S: ID ID] Split combination AFTER tile ID')
-    print('[T: ID R ID] Remove tile from combination')
     print('[C: ID ID..] Create combination from tiles in given order')
     print('[E: ID ID.. | ID ID ..] Enter with combinations from tiles in given order')
-    print('[T: ID A ID h/t] Add tile to combination (head/tail)')
+    print('[T: ID_C | A ID_T h/t] Add tile to combination (head/tail)')
+    print('[T: ID_C | R ID_T] Take tile from combination (head/tail)')
     print()

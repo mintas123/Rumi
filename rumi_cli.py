@@ -110,23 +110,26 @@ def _handle_game_commands(cmd: str, player: Player, input_vars):
     Process user command. Check for commands that touch on game logic aspects.
     '''
 
-    if cmd == 'T':
-        # take random and finish command loop √
+    if cmd == 'G':
+        # grab random and finish command loop √
         # TODO verify that no action was performed this loop.
         player.take_random(deck)
         player.turn_over = True
 
     if cmd == 'E' and len(input_vars) == 1:
-        # Enter the game with combos that have 30+ in value, finish command loop √
+        # enter the game with combos that have 30+ in value, finish command loop √
         enter_table(input_vars[0], player)
 
     if cmd == 'C' and len(input_vars) == 1:
         # create a new combination, without ending your turn
         create_combination(input_vars[0], player)
 
-    if cmd == 'T' and len(input_vars) == 2:
-        # TODO NEXT add/remove tile to existing (A: | R:)
-        pass
+    if cmd == 'T':
+        #TODO
+        # input_vars: "ID_C | A ID_T h/t"
+        # add/remove tile to existing (A or R)
+        # example: "T: 3 | A 76 t" <- add tile_id=76 to combiantion_id=3 at tail
+        modify_combination(input_vars[0], player)
 
 
 def _handle_misc_commands(cmd: str, player: Player):
@@ -181,6 +184,8 @@ def enter_table(user_input: str, player: Player):
     else:
         print('Nope, did not work out.')
 
+# TODO move to the API to the player class all functionality for later reuse in GUI and AI
+
 
 def create_combination(user_input, player: Player):
     '''
@@ -191,6 +196,30 @@ def create_combination(user_input, player: Player):
         table.append(_parse_combo_string(user_input, player))
         _prepare_game_terminal(player)
         print('Added!')
+    else:
+        print('First you need to be out first.')
+
+
+def modify_combination(user_input, player: Player):
+    '''
+    Parse the input to add or remove a tile from the combination with given ID
+     '''
+
+    if not player.is_out:
+        print('You need to be out first.')
+        return
+
+    input_list = user_input.split('|')
+    comb_id = input_list[0].strip()
+    tile_input = input_list[1].strip()
+    # example: "T: 3 | A 76 t" <- add tile_id=76 to combiantion_id=3 at tail
+    print(f"DEBUG --> comb_id:{comb_id}")
+    print(f"DEBUG --> tile_input:{tile_input}")
+    tile_cmds = tile_input.split(' ')
+    print(f"DEBUG --> tile_cmds:{tile_cmds}")
+
+    if len(tile_cmds) == 3:
+        print(f'DEBUG --> h/t info provided')
 
 
 # _______________UTILS_______________
