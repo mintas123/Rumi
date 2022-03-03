@@ -125,7 +125,7 @@ def _handle_game_commands(cmd: str, player: Player, input_vars):
         create_combination(input_vars[0], player)
 
     if cmd == 'T':
-        #TODO
+        # TODO
         # input_vars: "ID_C | A ID_T h/t"
         # add/remove tile to existing (A or R)
         # example: "T: 3 | A 76 t" <- add tile_id=76 to combiantion_id=3 at tail
@@ -172,7 +172,7 @@ def enter_table(user_input: str, player: Player):
 
     for input_tile_list in combination_input_list:
         input_tile_list = input_tile_list.strip()
-        combination_list.append(_parse_combo_string(
+        combination_list.append(parse_combo_string(
             input_tile_list.strip(), player))
 
     player.enter_game(combination_list)
@@ -184,22 +184,21 @@ def enter_table(user_input: str, player: Player):
     else:
         print('Nope, did not work out.')
 
-# TODO move to the API to the player class all functionality for later reuse in GUI and AI
-
 
 def create_combination(user_input, player: Player):
     '''
-    Parse and add given combination to the table, by taking the tiles from player.tile_list
+    Send to API request to create combination and manage the terminal.
     '''
 
-    if player.is_out:
-        table.append(_parse_combo_string(user_input, player))
+    is_performed = player.create_combination(user_input, table)
+    if is_performed:
         _prepare_game_terminal(player)
         print('Added!')
     else:
         print('First you need to be out first.')
 
 
+# TODO move to the API to the player class all functionality for later reuse in GUI and AI
 def modify_combination(user_input, player: Player):
     '''
     Parse the input to add or remove a tile from the combination with given ID
@@ -239,25 +238,6 @@ def _clean_terminal():
 def _print_default_view(current_player: Player):
     print_pretty_comb_list(table)
     print_pretty_own(current_player.tiles)
-
-
-def _parse_combo_string(combo_string: str, player: Player) -> Combination:
-    tile_list = []
-    tile_id_list = combo_string.split(' ')
-
-    for tile_id in tile_id_list:
-        tile_list.append(player.take_from_own_list(tile_id))
-    return _create_combo(player, tile_list)
-
-
-def _create_combo(player: Player, tile_list: List[Tile]):
-    try:
-        combo = Combination(tile_list)
-        return combo
-    except ValueError as ve:
-        for tile in tile_list:
-            player.return_to_own_list(tile)
-        print(str(ve))
 
 
 if __name__ == "__main__":

@@ -2,6 +2,7 @@ from enum import Enum
 import random
 from typing import List
 
+
 class Color(Enum):
     RED = 1
     BLUE = 2
@@ -46,7 +47,7 @@ class Joker():
         if Joker._static_id_counter > 106:
             raise ValueError('Only two Jokers')
         self.tile_id = Joker._static_id_counter
-        #TODO handle Jokers
+        # TODO handle Jokers
         self.fake_tile = tile
         self.number = 'X'  # just for display
         if self.tile_id == 105:
@@ -101,10 +102,8 @@ class Player():
         self.is_out = False
         self.turn_over = False
 
-
     def __str__(self):
         return f'Player(\nName:{self.name}\nTiles:(\n' + "\n".join([str(x) for x in self.tiles]) + '\n)'
-
 
     def take_starters(self, deck):
         '''
@@ -133,8 +132,17 @@ class Player():
     def return_to_own_list(self, tile: Tile):
         self.tiles.append(tile)
 
-    def place_new_combination(self, tiles):
-        pass
+    def create_combination(self, user_input: str, table):
+        '''
+        Parse and add given combination to the table, by taking the tiles from player.tile_list.
+        Return boolean is performed.
+        '''
+
+        if self.is_out:
+            table.append(parse_combo_string(user_input, self))
+            return True
+        else:
+            return False
 
     def add_to_combination(self, tiles, combination):
         pass
@@ -225,3 +233,22 @@ def init_deck():
     deck.append(Joker())
     deck.append(Joker())
     return deck
+
+
+def parse_combo_string(combo_string: str, player: Player) -> Combination:
+    tile_list = []
+    tile_id_list = combo_string.split(' ')
+
+    for tile_id in tile_id_list:
+        tile_list.append(player.take_from_own_list(tile_id))
+    return create_combo(player, tile_list)
+
+
+def create_combo(player: Player, tile_list: List[Tile]):
+    try:
+        combo = Combination(tile_list)
+        return combo
+    except ValueError as ve:
+        for tile in tile_list:
+            player.return_to_own_list(tile)
+        print(str(ve))
