@@ -101,6 +101,7 @@ class Player():
         self.tiles = []
         self.is_out = False
         self.turn_over = False
+        self.moved_this_turn = False
 
     def __str__(self):
         return f'Player(\nName:{self.name}\nTiles:(\n' + "\n".join([str(x) for x in self.tiles]) + '\n)'
@@ -122,6 +123,8 @@ class Player():
         '''
         if len(deck) > 0:
             self.tiles.append(deck.pop(random.randint(0, len(deck)-1)))
+        else:
+            print('No more tiles left in the deck')
 
     def take_from_own_list(self, tile_id) -> Tile:
         found = next(x for x in self.tiles if x.tile_id == int(tile_id))
@@ -140,6 +143,7 @@ class Player():
 
         if self.is_out:
             table.append(parse_combo_string(user_input, self))
+            self.moved_this_turn = True
             return True
         else:
             return False
@@ -157,9 +161,6 @@ class Player():
 
     # reaarange tiles
     def shake(self):
-        pass
-
-    def mark_turn_over(self):
         pass
 
     def enter_game(self, combination_list: List[Combination]):

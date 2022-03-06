@@ -112,12 +112,16 @@ def _handle_game_commands(cmd: str, player: Player, input_vars):
 
     if cmd == 'G':
         # grab random and finish command loop √
-        # TODO verify that no action was performed this loop.
+        if player.moved_this_turn:
+            print(
+                'Player already moved this round, no need to grab a piece. Press [Q]')
+
         player.take_random(deck)
         player.turn_over = True
 
     if cmd == 'E' and len(input_vars) == 1:
         # enter the game with combos that have 30+ in value, finish command loop √
+        # example: "E 12 14 16 | 1 3 5 7"
         enter_table(input_vars[0], player)
 
     if cmd == 'C' and len(input_vars) == 1:
@@ -138,8 +142,12 @@ def _handle_misc_commands(cmd: str, player: Player):
     '''
 
     if cmd == 'Q':
-        # finish command loop. Outer loop changes player to the next one
-        player.turn_over = True
+        if player.moved_this_turn:
+            # finish command loop. Outer loop changes player to the next one
+            player.turn_over = True
+        else:
+            print(
+                'Cant finish the round without any action. Press [G] to grab from deck.')
 
     if cmd == 'H':
         print_commands()
