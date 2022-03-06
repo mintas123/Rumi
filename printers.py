@@ -1,6 +1,7 @@
 from typing import List
-from rumi_api import *
 import colorama
+
+from rumi_api import Color, Combination, Tile
 
 """
 Collection of helper methods that format data
@@ -30,7 +31,7 @@ def print_pretty_comb_list(table: List[Combination]):
     print('Currently on the table:')
     for combination in table:
         print(f'ID: {combination.comb_id}')
-        _print_pretty_list(combination.tile_list, with_id=False)
+        print_pretty_list(combination.tile_list, with_id=False)
         print()
     print('_________________')
 
@@ -42,13 +43,13 @@ def print_pretty_own(tile_list: List[Tile]):
 
     print('Your deck:')
     if len(tile_list) > 15:
-        _print_pretty_list(tile_list[:15])
-        _print_pretty_list(tile_list[15:])
+        print_pretty_list(tile_list[:15])
+        print_pretty_list(tile_list[15:])
     else:
-        _print_pretty_list(tile_list)
+        print_pretty_list(tile_list)
 
 
-def _print_pretty_list(tile_list: List[Tile], with_id=True):
+def print_pretty_list(tile_list: List[Tile], with_id=True):
     '''
     Print to the CLI full row of tiles with applied formatting
 
@@ -166,6 +167,7 @@ def print_commands():
     print('[G:] Grab from the deck. Next player')
     print('[quit] Turn off the game.')
     print('[clear] Clear the user input')
+    print('[sort] Sort your hand')
     print('[S: ID ID] Split combination AFTER tile ID')
     print('[C: ID ID..] Create combination from tiles in given order')
     print('[E: ID ID.. | ID ID ..] Enter with combinations from tiles in given order')

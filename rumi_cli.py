@@ -1,13 +1,14 @@
-from printers import *
-from rumi_api import *
 import os
 import sys
 import colorama
+from printers import print_commands, print_pretty_comb_list, print_pretty_own
+
+from rumi_api import Player, init_deck, parse_combo_string
 
 
 def main():
     is_game_played = True
-    # game loop (todo add kill to the loop when game won)
+    # game loop (TODO add killswitch to the loop when game won)
     while(is_game_played):
         # global variables that provide data needed for all operations
         global table
@@ -25,8 +26,11 @@ def main():
         players_iterate_loop(player_list)
 
 
-# get data how many players will be playing
 def player_count_loop():
+    '''
+    Get data about player count by asking the players for input.
+    '''
+
     while True:
         player_count_input = input('How many players? 1-6 values only\n')
         player_count = 0
@@ -55,7 +59,7 @@ def get_player_list(player_count: int):
     return player_list
 
 
-def players_iterate_loop(player_list: List[Player]):
+def players_iterate_loop(player_list: list[Player]):
     '''
     Cyclic iteration of player list. Next player only when player.turn_over is True.
     '''
@@ -90,13 +94,14 @@ def player_command_loop(player: Player):
 
 
 def _get_cmd_input():
-    '''Get Input from the player.'''
+    '''Get command input from the player.'''
 
     inp = input(
-        "What will you do? (write command + [Enter] to confirm). 'H' for help.\n").split(':')
+        "What will you do? (write command + [Enter] to confirm). [H] for help.\n").split(':')
 
-    # Command is followed by ':' symbol. Input_vars can be a list, as each subcommand is also followed by ':'.
+    # Command is followed by ':' symbol.
     cmd = inp.pop(0).upper()
+    # TODO after being done with whole game logic, does it ever need to be a list?
     input_vars = []
     for inp in inp:
         input_vars.append(inp.strip())
@@ -151,6 +156,9 @@ def _handle_misc_commands(cmd: str, player: Player):
 
     if cmd == 'H':
         print_commands()
+    if cmd == 'SORT':
+        player.sort_tiles()
+        _prepare_game_terminal(player)
 
     if cmd == 'QUIT':
         sys.exit('Quitted..')
@@ -203,30 +211,20 @@ def create_combination(user_input, player: Player):
         _prepare_game_terminal(player)
         print('Added!')
     else:
-        print('First you need to be out first.')
+        print('Invalid move.')
 
 
-# TODO move to the API to the player class all functionality for later reuse in GUI and AI
 def modify_combination(user_input, player: Player):
     '''
-    Parse the input to add or remove a tile from the combination with given ID
-     '''
+    Send to API request to modify combination and manage the terminal.
+    '''
 
-    if not player.is_out:
-        print('You need to be out first.')
-        return
-
-    input_list = user_input.split('|')
-    comb_id = input_list[0].strip()
-    tile_input = input_list[1].strip()
-    # example: "T: 3 | A 76 t" <- add tile_id=76 to combiantion_id=3 at tail
-    print(f"DEBUG --> comb_id:{comb_id}")
-    print(f"DEBUG --> tile_input:{tile_input}")
-    tile_cmds = tile_input.split(' ')
-    print(f"DEBUG --> tile_cmds:{tile_cmds}")
-
-    if len(tile_cmds) == 3:
-        print(f'DEBUG --> h/t info provided')
+    is_performed = player.modify_combination(user_input, table)
+    if is_performed:
+        _prepare_game_terminal(player)
+        print('Added!')
+    else:
+        print('Invalid move.')
 
 
 # _______________UTILS_______________
