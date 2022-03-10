@@ -265,24 +265,21 @@ def _verify_length(tile_list: list[Tile]):
 def _verify_number_set(tile_list: list[Tile]):
     # if I dont create copy here Python fucks with my (Combination) self.tile_list and modifies it
     local_tile_list = deepcopy(tile_list)
-    # TODO pls work
-    print(f'DEBUG--> Number set verifier')
     _verify_length(local_tile_list)
     first = local_tile_list.pop(0)
-
-    col = first.color
+    col_set = set()
+    col_set.add(first.color)
     val = first.number
     # number set has to contain distinct colors and same number
     for tile in local_tile_list:
-        if(col == tile.color or val is not tile.number):
+        if(tile.color in col_set or tile.number is not val):
             raise ValueError("Incorrect set")
+        col_set.add(tile.color)
 
 
 def _verify_number_sequence(tile_list: list[Tile]):
     # if I dont create copy here Python fucks with my (Combination) self.tile_list and modifies it
     local_tile_list = deepcopy(tile_list)
-    # TODO pls work
-    print(f'DEBUG--> Number sequence verifier')
     _verify_length(local_tile_list)
     first = local_tile_list.pop(0)
     col = first.color
@@ -293,8 +290,10 @@ def _verify_number_sequence(tile_list: list[Tile]):
     for tile in local_tile_list:
         if(tile.number > first.number):
             sequence += 1
-        else:
+        elif(tile.number < first.number):
             sequence -= 1
+        else:
+            raise ValueError("Incorrect sequence")
 
         if(col is not tile.color or sequence is not tile.number):
             raise ValueError("Incorrect sequence")
