@@ -122,9 +122,9 @@ def _handle_game_commands(cmd: str, player: Player, input_vars):
         if player.moved_this_turn:
             print(
                 'Player already moved this round, no need to grab a piece. Press [Q]')
-
-        player.take_random(deck)
-        player.turn_over = True
+        else:
+            player.take_random(deck)
+            player.turn_over = True
 
     if cmd == 'E' and len(input_vars) == 1:
         # enter the game with combos that have 30+ in value, finish command loop √
