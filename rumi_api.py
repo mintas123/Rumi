@@ -79,17 +79,15 @@ class Combination():
         Combination._static_id_counter += 1
 
     def add_tile(self, tile: Tile, is_head=False):
+        temp_tile_list = self.tile_list
         if is_head:
-            self.tile_list.index(0, tile)
+            temp_tile_list.insert(0, tile)
         else:
-            self.tile_list.append(tile)
-
-        print(f'DEBUG--> Combination:')
-        print(f'DEBUG--> Tile: {tile}')
-        print(f'DEBUG -->len:{len(self.tile_list)} Tiles: {self.tile_list}')
+            temp_tile_list.append(tile)
 
         # verify if the combination is correct
-        _ = get_combo_mode(self.tile_list)
+        _ = get_combo_mode(temp_tile_list)
+        self.tile_list = temp_tile_list
 
     # chaos mode to be able to skip validation in order to do a mess on the table
 
@@ -172,7 +170,6 @@ class Player():
         input_list = user_input.split('|')
         comb_id = int(input_list[0].strip())
         comb = get_combination_from_list(table, comb_id)
-        print(f'DEBUG -->len:{len(comb.tile_list)} Tiles: {comb.tile_list}')
         tile_input = input_list[1].strip()
         # example: "T: 3 | A 76 t" <- add tile_id=76 to combiantion_id=3 at tail
         tile_cmds = tile_input.split(' ')
@@ -187,20 +184,16 @@ class Player():
         return False
 
     def _add_tile_to_comb(self, tile_cmds: list[str], tile: Tile, comb: Combination):
-        print(f'DEBUG --> ADDING')
-        is_head = tile_cmds[2] == 'H'
+        is_head = tile_cmds[2].upper == 'H'
         try:
             comb.add_tile(tile, is_head)
-            self.tiles.remove(tile)
             return True
-        except ValueError as ve:
+        except ValueError:
             # rollback
             comb.remove_tile(tile)
-            print(ve)
             return False
 
     def _remove_tile_from_comb(self, tile: Tile, comb: Combination, table: list[Combination]):
-        print(f'DEBUG --> REMOVING')
         # creating a copy of an object to not care about restoring the state after modification
         comb_snapshot = deepcopy(comb)
         try:
