@@ -14,9 +14,11 @@ def main():
         global table
         global deck
         global player_list
+        global is_compact
 
         deck = init_deck()
         table = []
+        is_compact = False
 
         # gather game start information
         player_count = player_count_loop()
@@ -166,6 +168,11 @@ def _handle_misc_commands(cmd: str, player: Player):
     if cmd == 'CLEAR':
         _clean_terminal()
         _print_default_view(player)
+    if cmd == 'TOGGLE':
+        global is_compact
+        is_compact = not is_compact
+        _clean_terminal()
+        _print_default_view(player)
 
 
 # _______________COMMAND ACTIONS_______________
@@ -231,7 +238,8 @@ def modify_combination(user_input, player: Player):
 
 def _prepare_game_terminal(current_player: Player):
     _clean_terminal()
-    print(f'{current_player.name}, it\'s your turn!\n')
+    global is_compact
+    if not is_compact: print(f'{current_player.name}, it\'s your turn!\n')
     # for colorful output
     colorama.init()
     _print_default_view(current_player)
@@ -242,8 +250,9 @@ def _clean_terminal():
 
 
 def _print_default_view(current_player: Player):
-    print_pretty_comb_list(table)
-    print_pretty_own(current_player.tiles)
+    global is_compact
+    print_pretty_comb_list(table, is_compact)
+    print_pretty_own(current_player.tiles, is_compact)
 
 
 if __name__ == "__main__":

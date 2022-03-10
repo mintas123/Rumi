@@ -23,25 +23,31 @@ def print_game_status(deck, player_list, table):
     print(table)
 
 
-def print_pretty_comb_list(table: List[Combination]):
+def print_pretty_comb_list(table: List[Combination], is_compact= False):
     '''
     Print to the CLI all provided combinations, each in its own row with ID
     '''
 
-    print('Currently on the table:')
-    for combination in table:
-        print(f'ID: {combination.comb_id}')
-        print_pretty_list(combination.tile_list, with_id=False)
-        print()
-    print('_________________')
+    if is_compact:
+        for combination in table:
+            print_pretty_list(combination.tile_list, with_id_row= False, comb_id= combination.comb_id)
+            print()
+    else:
+        print('Currently on the table:')
+        for combination in table:
+            print(f'ID: {combination.comb_id}')
+            print_pretty_list(combination.tile_list, with_id_row= False)
+            print()
+        print('_________________')
 
 
-def print_pretty_own(tile_list: List[Tile]):
+def print_pretty_own(tile_list: List[Tile], is_compact = False):
     '''
     Print to the CLI all provided tiles, split into two rows if over 15 elements
     '''
 
-    print('Your deck:')
+    if not is_compact: print('Your deck:')
+
     if len(tile_list) > 15:
         print_pretty_list(tile_list[:15])
         print_pretty_list(tile_list[15:])
@@ -49,16 +55,21 @@ def print_pretty_own(tile_list: List[Tile]):
         print_pretty_list(tile_list)
 
 
-def print_pretty_list(tile_list: List[Tile], with_id=True):
+def print_pretty_list(tile_list: List[Tile], with_id_row=True, comb_id=None):
     '''
     Print to the CLI full row of tiles with applied formatting
 
     Input: 
     tile_list - List[Tile], obejcts to be properly displayed
     with_id - boolean, should the row with ID numbers be displayed
+    comb_id - int, the combination ID to be displayed (optional)
     '''
 
-    bld_str = 'Val:'
+    bld_str = ''
+    if comb_id is not None:
+        bld_str += f'C_ID: {comb_id} --> '
+
+    bld_str += 'Val:'
     id_bld_str = 'ID: '
     for tile in tile_list:
         tile_str, id_str = _build_pretty_with_id(tile)
@@ -66,7 +77,7 @@ def print_pretty_list(tile_list: List[Tile], with_id=True):
         bld_str += tile_str
     print(bld_str, colorama.Style.RESET_ALL)
 
-    if with_id:
+    if with_id_row:
         print(id_bld_str, colorama.Style.RESET_ALL)
 
 
@@ -168,9 +179,10 @@ def print_commands():
     print('[quit] Turn off the game.')
     print('[clear] Clear the user input')
     print('[sort] Sort your hand')
-    print('[S: ID ID] Split combination AFTER tile ID')
+    print('[toggle] Toggle compact view')
+    # print('[S: ID ID] Split combination AFTER tile ID') todo 
     print('[C: ID ID..] Create combination from tiles in given order')
     print('[E: ID ID.. | ID ID ..] Enter with combinations from tiles in given order')
     print('[T: ID_C | A ID_T h/t] Add tile to combination (head/tail)')
-    print('[T: ID_C | R ID_T] Take tile from combination (head/tail)')
+    # print('[T: ID_C | R ID_T] Take tile from combination (head/tail)') todo
     print()
